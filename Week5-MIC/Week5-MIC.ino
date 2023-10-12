@@ -1,21 +1,22 @@
-const int ledOne = 8;
-const int ledTwo = 9;
-const int ledThree = 10;
-const int ledFour = 11;
-const int ledFive = 12;
-const int ledSix = 13;
+#define ledOne 8
+#define ledTwo 9
+#define ledThree 10
+#define ledFour 11 
+#define ledFive 12
+#define ledSix 13
 
-int currentLedPin = 7;  // The current LED that should be on
+#define builtInButton 20
+#define potiPin A0
+
 const int minLedPin = 7;
 const int maxLedPin = 14;
-
-const int potiPin = A0;
-const int builtInButton = 20;
+int currentLedPin = 7;  // The current LED that should be on
 
 // Control State values
 bool isButtonPressed = false;
 int interval = 100;
 bool direction = true; // true adds false subtracs
+unsigned long previousMillis = 0;  // will store last time LED was updated
 
 // Communication values
 bool stringComplete = false;
@@ -48,6 +49,7 @@ void setup() {
 
 
 void loop() {
+  unsigned long currentMillis = millis();
   int tmp = analogRead(potiPin);
   interval = constrain(tmp, 10, 1000);
 
@@ -77,9 +79,9 @@ void loop() {
   }
 
   // interval milli check
-  if (!isButtonPressed) {
+  if (!isButtonPressed && currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
     digitalWrite(currentLedPin, LOW);
-    delay(interval/2);  // Half the interval off
 
     // Check of Direction
     if (direction == false){
@@ -92,15 +94,16 @@ void loop() {
     // Checking range of Led pins    
     switch(currentLedPin){
       case maxLedPin:
-        currentLedPin = minLedPin;
+      // Sets it after max to the first LED
+        currentLedPin = ledOne;
         break;
       case minLedPin:
-        currentLedPin = maxLedPin;
+      // Sets it after min to the last LED
+        currentLedPin = ledSix;
         break;
     } 
     
     digitalWrite(currentLedPin, HIGH);
-    delay(interval/2); // Half the interval on
   }
 }
 
